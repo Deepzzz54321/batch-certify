@@ -2,24 +2,25 @@ import "reflect-metadata";
 import type { NextApiRequest, NextApiResponse } from "next";
 import startOrm from "../../../utils/initialize-database";
 import { Template } from "../../../entities/Template";
+import { Certificate } from "../../../entities/Certificate";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const orm = await startOrm();
   switch (req.method) {
-    case "GET":
-      const templates = await orm.em.find(Template, {});
-      res.status(200).json({ templates });
-      break;
     case "POST":
-      const { name, imageURL } = req.body;
+      const { name, email, templateId } = req.body;
       try {
-        if (!(name && imageURL)) {
-          throw new Error("Missing name or image URL.");
+        if (!(name && email && templateId)) {
+          throw new Error("Missing name or email or templateID.");
         }
-        const template = new Template(name, imageURL);
-        await orm.em.persistAndFlush(template);
+        const template = await orm.em.findOneOrFail(Template, {
+          id: templateId,
+        });
+        console.log({ template });
+        const certificate = new Certificate(name, email, template);
+        await orm.em.persistAndFlush(certificate);
 
-        res.status(201).json({ template });
+        res.status(201).json({ certificate });
       } catch (error) {
         console.log("Catched Error:  ", error);
         res.status(400).json({ error: error.message });
@@ -27,7 +28,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
       break;
     default:
-      res.setHeader("Allow", ["GET", "POST"]);
+      res.setHeader("Allow", ["POST"]);
       res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 };
