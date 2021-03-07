@@ -35,3 +35,6 @@ yarn-error.log*
 
 #env
 .env
+
+argon-dashboard-react-master
+nextjs-argon-dashboard-master

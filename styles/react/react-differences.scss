@@ -1,0 +1,11 @@
+// Differences from the HTML to the React product
+
+// bootstrap
+@import "~bootstrap/scss/spinners";
+
+// core components
+@import "buttons";
+@import "mixins";
+@import "navbar-dropdown";
+@import "navbar";
+@import "tables";
