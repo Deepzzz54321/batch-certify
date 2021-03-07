@@ -16,7 +16,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         if (!(name && imageURL)) {
           throw new Error("Missing name or image URL.");
         }
-        const template = new Template(name, imageURL);
+        let fileId = imageURL
+          .split("https://drive.google.com/file/d/")[1]
+          .split("/")[0];
+        let directImageURL =
+          "https://drive.google.com/uc?export=view&id=" + fileId;
+        const template = new Template(name, directImageURL);
         await orm.em.persistAndFlush(template);
 
         res.status(201).json({ template });
