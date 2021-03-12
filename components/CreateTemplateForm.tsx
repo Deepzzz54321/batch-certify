@@ -1,20 +1,10 @@
-import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import {
-  Button,
-  Card,
-  CardBody,
-  Col,
-  Form,
-  FormFeedback,
-  FormGroup,
-  Input,
-  Label,
-  Row,
-} from "reactstrap";
 import fetch from "isomorphic-unfetch";
+import React from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import { Button, Card, CardBody, Col, Form, Row } from "reactstrap";
 import { mutate } from "swr";
+import InputField from "./InputField";
 
 const UploadInstructions = () => (
   <>
@@ -67,24 +57,6 @@ const UploadInstructions = () => (
 type Inputs = {
   name: string;
   imageURL: string;
-};
-
-const InputField = ({ name, label, error, id = "", type, formRef }) => {
-  const errorMessage = error && error.message;
-  return (
-    <FormGroup>
-      <Label for={name}>{label}</Label>
-      <Input
-        type={type}
-        name={name}
-        id={id || name}
-        placeholder={`Enter ${label}...`}
-        innerRef={formRef}
-        invalid={Boolean(errorMessage)}
-      />
-      {errorMessage && <FormFeedback>{errorMessage}</FormFeedback>}
-    </FormGroup>
-  );
 };
 
 export default function CreateTemplateForm() {

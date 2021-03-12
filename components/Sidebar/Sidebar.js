@@ -23,7 +23,7 @@ const routes = [
     layout: "/admin",
   },
   {
-    path: "/certificates",
+    path: "/certificates/new",
     name: "Certificates",
     icon: "folders-fill",
     layout: "/admin",
@@ -112,6 +112,7 @@ function Sidebar(props) {
               <NavItem key={key} active={activeRoute(prop.layout + prop.path)}>
                 <Link href={prop.layout + prop.path}>
                   <NavLink
+                    href={prop.layout + prop.path}
                     active={activeRoute(prop.layout + prop.path)}
                     onClick={closeCollapse}
                   >

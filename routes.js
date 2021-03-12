@@ -6,14 +6,9 @@ var routes = [
     layout: "/admin",
   },
   {
-    path: "/certificates",
+    path: "/certificates/new",
     name: "Certificates",
     icon: "ni ni-planet text-blue",
-    layout: "/admin",
-  },
-  {
-    path: "/templates/new",
-    name: "New Template",
     layout: "/admin",
   },
   {
