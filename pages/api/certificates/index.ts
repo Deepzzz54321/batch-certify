@@ -7,6 +7,10 @@ import { Certificate } from "../../../entities/Certificate";
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const orm = await startOrm();
   switch (req.method) {
+    case "GET":
+      const certificates = await orm.em.find(Certificate, {}, ["template"]);
+      res.status(200).json({ certificates });
+      break;
     case "POST":
       const { name, email, templateId } = req.body;
       try {

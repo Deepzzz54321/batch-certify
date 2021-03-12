@@ -2,14 +2,23 @@ var routes = [
   {
     path: "/templates",
     name: "Templates",
-    icon: "ni ni-tv-2 text-primary",
+    icon: "image-fill",
     layout: "/admin",
+    sideNav: true,
+  },
+  {
+    path: "/certificates",
+    name: "Certificates",
+    icon: "folders-fill",
+    layout: "/admin",
+    sideNav: true,
   },
   {
     path: "/certificates/new",
-    name: "Certificates",
-    icon: "ni ni-planet text-blue",
+    name: "New Certificate Batch",
+    icon: "file-add-fill",
     layout: "/admin",
+    sideNav: true,
   },
   {
     path: "/login",

@@ -13,28 +13,16 @@ import {
   NavLink,
   Row,
 } from "reactstrap";
+import routes from "../../routes";
 import Icon from "../Icon";
 
-const routes = [
-  {
-    path: "/templates",
-    name: "Templates",
-    icon: "image-fill",
-    layout: "/admin",
-  },
-  {
-    path: "/certificates/new",
-    name: "Certificates",
-    icon: "folders-fill",
-    layout: "/admin",
-  },
-];
+const navRoutes = routes.filter((route) => route.sideNav);
 
 function Sidebar(props) {
   const router = useRouter();
   const [collapseOpen, setCollapseOpen] = React.useState(false);
   const activeRoute = (routeName) => {
-    return router.pathname.indexOf(routeName) > -1;
+    return router.pathname == routeName;
   };
   const toggleCollapse = () => {
     setCollapseOpen(!collapseOpen);
@@ -108,7 +96,7 @@ function Sidebar(props) {
 
           {/* Navigation */}
           <Nav navbar>
-            {routes.map((prop, key) => (
+            {navRoutes.map((prop, key) => (
               <NavItem key={key} active={activeRoute(prop.layout + prop.path)}>
                 <Link href={prop.layout + prop.path}>
                   <NavLink
