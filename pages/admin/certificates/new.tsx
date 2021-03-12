@@ -9,6 +9,7 @@ import {
   Input,
   FormFeedback,
   Collapse,
+  Card,
 } from "reactstrap";
 import useSWR from "swr";
 import ErrorMessage from "../../../components/ErrorMessage";
@@ -20,6 +21,7 @@ import JsonToTable from "../../../components/JsonToTable";
 import isoFetch from "isomorphic-unfetch";
 import { toast } from "react-toastify";
 import { mutate } from "swr";
+import DataTable from "../../../components/DataTable";
 
 function UploadCSV({ handleFirstStep }) {
   const { register, handleSubmit, watch, errors, setError } = useForm<{
@@ -29,6 +31,7 @@ function UploadCSV({ handleFirstStep }) {
   });
   const watchFile = watch("csvFile");
   const [localData, setLocalData] = useState(null);
+  const [columns, setColumns] = useState(null);
 
   const parseCSV = (file: File) => {
     let data = [];
@@ -39,9 +42,16 @@ function UploadCSV({ handleFirstStep }) {
         if (
           results.meta.fields.includes("Name") &&
           results.meta.fields.includes("Email")
-        )
+        ) {
+          setColumns(
+            results.meta.fields.map((field) => ({
+              Header: field,
+              accessor: field,
+            }))
+          );
           setLocalData(results.data);
-        else setError("csvFile", { message: "Fields Name and Email missing" });
+        } else
+          setError("csvFile", { message: "Fields Name and Email missing" });
       },
     });
     return data;
@@ -91,7 +101,9 @@ function UploadCSV({ handleFirstStep }) {
         <div>
           <h4>Preview Data</h4>
           <div className="overflow-auto mb-3">
-            <JsonToTable data={localData} classNames={{ table: "table" }} />
+            <Card>
+              <DataTable columns={columns} data={localData} />
+            </Card>
           </div>
 
           <div className="text-center">
