@@ -17,6 +17,9 @@ import LoadingSpinner from "../../../components/LoadingSpinner";
 import fetch from "../../../utils/fetch";
 import Papa from "papaparse";
 import JsonToTable from "../../../components/JsonToTable";
+import isoFetch from "isomorphic-unfetch";
+import { toast } from "react-toastify";
+import { mutate } from "swr";
 
 function UploadCSV({ handleFirstStep }) {
   const { register, handleSubmit, watch, errors, setError } = useForm<{
@@ -33,7 +36,6 @@ function UploadCSV({ handleFirstStep }) {
       header: true,
       skipEmptyLines: "greedy",
       complete: (results) => {
-        console.log(results);
         if (
           results.meta.fields.includes("Name") &&
           results.meta.fields.includes("Email")
@@ -110,7 +112,37 @@ export default function NewCertificate() {
   const { data, error } = useSWR("/api/templates", fetch);
   const { query } = useRouter();
   const queryId = query.id;
-  const onSubmit = (data) => console.log({ data, jsonData });
+  const onSubmit = (data) => {
+    isoFetch("/api/certificates/create-batch", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify({
+        templateId: data.templateId,
+        certificates: jsonData,
+      }),
+    })
+      .then((res) => {
+        if (!res.ok) throw res;
+        return res.json();
+      })
+      .then((data) => {
+        console.log(data);
+        toast.success(
+          `Created Certificates: ${
+            data.certificates && data.certificates.length
+          }`
+        );
+        mutate("/api/certificates");
+      })
+      .catch((error) =>
+        error.json().then((err) => {
+          console.log(err);
+          toast.error(err.error);
+        })
+      );
+  };
   const [formStep, setFormStep] = useState(1);
   const [jsonData, setJsonData] = useState(null);
 
