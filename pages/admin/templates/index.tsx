@@ -11,11 +11,11 @@ import {
   Row,
 } from "reactstrap";
 import useSWR from "swr";
-import CreateTemplateForm from "../../components/CreateTemplateForm";
-import ErrorMessage from "../../components/ErrorMessage";
-import Icon from "../../components/Icon";
-import LoadingSpinner from "../../components/LoadingSpinner";
-import fetch from "../../utils/fetch";
+import CreateTemplateForm from "../../../components/CreateTemplateForm";
+import ErrorMessage from "../../../components/ErrorMessage";
+import Icon from "../../../components/Icon";
+import LoadingSpinner from "../../../components/LoadingSpinner";
+import fetch from "../../../utils/fetch";
 
 const TemplateCard = ({ template }) => (
   <Col className="mb-3">
@@ -48,21 +48,17 @@ const Dashboard = () => {
     <>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h1>Templates</h1>
-        <Button
-          color="primary"
-          className="d-flex align-items-center"
-          onClick={() => setCreateOpen(!createOpen)}
-        >
-          New Template
-          <Icon
-            name={`arrow-${createOpen ? "up" : "down"}-s-line`}
-            style={{ fontSize: "1rem" }}
-          />
-        </Button>
+        <Link href="/admin/templates/new">
+          <Button
+            color="primary"
+            className="d-flex align-items-center"
+            href="/admin/templates/new"
+          >
+            New Template
+            <Icon name="add-line" style={{ fontSize: "1rem" }} />
+          </Button>
+        </Link>
       </div>
-      <Collapse isOpen={createOpen}>
-        <CreateTemplateForm />
-      </Collapse>
       {!data && !error && <LoadingSpinner />}
       {error && <ErrorMessage message="Failed to load Templates" />}
       {!error && data && (

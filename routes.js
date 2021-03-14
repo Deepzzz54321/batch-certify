@@ -7,6 +7,12 @@ var routes = [
     sideNav: true,
   },
   {
+    path: "/templates/new",
+    name: "New Template",
+    icon: "image-fill",
+    layout: "/admin",
+  },
+  {
     path: "/certificates",
     name: "Certificates",
     icon: "folders-fill",

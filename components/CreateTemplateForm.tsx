@@ -1,10 +1,119 @@
 import fetch from "isomorphic-unfetch";
-import React from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { Button, Card, CardBody, Col, Form, Row } from "reactstrap";
+import {
+  Button,
+  Card,
+  CardBody,
+  Col,
+  Collapse,
+  Form,
+  Input,
+  Row,
+} from "reactstrap";
 import { mutate } from "swr";
 import InputField from "./InputField";
+import ReactCrop, { Crop } from "react-image-crop";
+import { driveToDirectImageURL } from "../utils";
+
+const ImageCrop = ({ imageURL, handleFinalise }) => {
+  const [font, setFont] = useState(10);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [crop, setCrop] = useState<Crop>({ unit: "%" });
+  const [completedCrop, setCompletedCrop] = useState<Crop>(null);
+  const fontSize = font * 4;
+  const onLoad = useCallback((img) => {
+    imgRef.current = img;
+  }, []);
+
+  const handleSubmit = () => {
+    if (
+      !(
+        completedCrop &&
+        completedCrop.width &&
+        completedCrop.height &&
+        fontSize
+      )
+    ) {
+      toast.error("Please select a text region in preview!");
+      return false;
+    }
+
+    handleFinalise({ crop: completedCrop, fontSize: fontSize });
+  };
+
+  useEffect(() => {
+    if (!completedCrop || !previewCanvasRef.current || !imgRef.current) {
+      return;
+    }
+
+    const image = imgRef.current;
+    const canvas = previewCanvasRef.current;
+    const crop = completedCrop;
+
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+    const ctx = canvas.getContext("2d");
+    const pixelRatio = window.devicePixelRatio;
+
+    canvas.width = image.naturalWidth;
+    canvas.height = image.naturalHeight;
+
+    ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    ctx.imageSmoothingQuality = "high";
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(image, 0, 0);
+    if (crop.width && crop.height) {
+      ctx.font = fontSize + "px" + " Helvetica";
+      ctx.fillText(
+        "Arthur Shelby",
+        crop.x * scaleX,
+        crop.y * scaleY + fontSize
+      );
+    }
+  }, [completedCrop, font]);
+
+  return (
+    <>
+      <div className="d-flex">
+        <Card className="p-3">
+          <h2>Drag a region for the text</h2>
+          <ReactCrop
+            src={imageURL}
+            onImageLoaded={onLoad}
+            crop={crop}
+            onChange={(c) => setCrop(c)}
+            onComplete={(c) => setCompletedCrop(c)}
+          />
+        </Card>
+        <Card className="mx-3 p-3">
+          <h2>Preview here:</h2>
+          <canvas
+            ref={previewCanvasRef}
+            style={{ width: "100%", height: "auto" }}
+          />
+        </Card>
+      </div>
+      <div className="d-flex mt-2">
+        <div className="d-flex w-100 align-items-center justify-content-around">
+          Font Size:
+          <Input
+            className="w-75"
+            type="range"
+            value={font}
+            onChange={(e) => setFont(parseInt(e.target.value))}
+          />
+        </div>
+        <Button color="primary" onClick={handleSubmit}>
+          Finalise
+        </Button>
+      </div>
+    </>
+  );
+};
 
 const UploadInstructions = () => (
   <>
@@ -60,8 +169,29 @@ type Inputs = {
 };
 
 export default function CreateTemplateForm() {
-  const { register, handleSubmit, watch, errors } = useForm<Inputs>();
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [cropAttr, setCropAttr] = useState<{ crop: Crop; fontSize: number }>({
+    crop: null,
+    fontSize: null,
+  });
+  const { register, handleSubmit, watch, errors } = useForm<Inputs>({
+    mode: "onChange",
+  });
+  const watchImageURL = watch("imageURL");
   const onSubmit = (data) => {
+    if (
+      !(
+        cropAttr &&
+        cropAttr.crop &&
+        cropAttr.crop.width &&
+        cropAttr.crop.height &&
+        cropAttr.fontSize
+      )
+    ) {
+      toast.error("Please select a text region in preview!");
+      return false;
+    }
+
     fetch("/api/templates", {
       method: "POST",
       headers: {
@@ -87,7 +217,7 @@ export default function CreateTemplateForm() {
   };
 
   return (
-    <div className="mb-4 border-bottom border-info">
+    <div className="mb-4 ">
       <h2 className="mb-3">Create Template</h2>
       <Form onSubmit={handleSubmit(onSubmit)} className="mb-3">
         <InputField
@@ -97,22 +227,53 @@ export default function CreateTemplateForm() {
           error={errors.name}
           formRef={register({ required: "This field is required!" })}
         />
-        <UploadInstructions />
-        <InputField
-          name="imageURL"
-          label="Uploaded Image URL"
-          type="text"
-          error={errors.imageURL}
-          formRef={register({
-            required: "This field is required!",
-            pattern: {
-              value: new RegExp("^https://drive.google.com/file", ""),
-              message: "Only Google Drive Links supported!", // JS only: <p>error message</p> TS only support string
-            },
-          })}
-        />
-        <div className="text-right">
-          <Button color="success">Create</Button>
+        <Collapse isOpen={!previewOpen}>
+          <UploadInstructions />
+        </Collapse>
+        <div className="d-flex align-items-center">
+          <div className="w-100">
+            <InputField
+              name="imageURL"
+              label="Uploaded Image URL"
+              type="text"
+              error={errors.imageURL}
+              formRef={register({
+                required: "This field is required!",
+                pattern: {
+                  value: new RegExp("^https://drive.google.com/file", ""),
+                  message: "Only Google Drive Links supported!",
+                },
+              })}
+            />
+          </div>
+          <div className="mx-2">
+            <Button
+              color="info"
+              type="button"
+              disabled={Boolean(
+                !watchImageURL || (errors.imageURL && errors.imageURL.message)
+              )}
+              onClick={() => setPreviewOpen(!previewOpen)}
+            >
+              Preview
+            </Button>
+          </div>
+        </div>
+        <Collapse isOpen={previewOpen}>
+          {watchImageURL && !errors.imageURL && (
+            <ImageCrop
+              imageURL={driveToDirectImageURL(watchImageURL)}
+              handleFinalise={(data) => {
+                setPreviewOpen(false);
+                setCropAttr(data);
+              }}
+            />
+          )}
+        </Collapse>
+        <div className="text-center">
+          <Button color="success" size="lg" className="px-5">
+            Create
+          </Button>
         </div>
       </Form>
     </div>

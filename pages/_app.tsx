@@ -2,6 +2,7 @@ import type { AppProps } from "next/app";
 import Head from "next/head";
 import "../styles/argon-dashboard-react.scss";
 import "react-toastify/dist/ReactToastify.css";
+import "react-image-crop/dist/ReactCrop.css";
 import Admin from "../components/Layouts/Admin";
 import { ToastContainer } from "react-toastify";
 
