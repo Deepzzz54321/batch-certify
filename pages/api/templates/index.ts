@@ -2,6 +2,7 @@ import "reflect-metadata";
 import type { NextApiRequest, NextApiResponse } from "next";
 import startOrm from "../../../utils/initialize-database";
 import { Template } from "../../../entities/Template";
+import { driveToDirectImageURL } from "../../../utils";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const orm = await startOrm();
@@ -11,17 +12,13 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       res.status(200).json({ templates });
       break;
     case "POST":
-      const { name, imageURL } = req.body;
+      const { name, imageURL, imageAttr } = req.body;
       try {
-        if (!(name && imageURL)) {
-          throw new Error("Missing name or image URL.");
+        if (!(name && imageURL && imageAttr)) {
+          throw new Error("Missing name or image URL or image attributes.");
         }
-        let fileId = imageURL
-          .split("https://drive.google.com/file/d/")[1]
-          .split("/")[0];
-        let directImageURL =
-          "https://drive.google.com/uc?export=view&id=" + fileId;
-        const template = new Template(name, directImageURL);
+        const directImageURL = driveToDirectImageURL(imageURL);
+        const template = new Template(name, directImageURL, imageAttr);
         await orm.em.persistAndFlush(template);
 
         res.status(201).json({ template });

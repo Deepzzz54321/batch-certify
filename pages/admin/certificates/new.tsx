@@ -10,6 +10,7 @@ import {
   FormFeedback,
   Collapse,
   Card,
+  Spinner,
 } from "reactstrap";
 import useSWR from "swr";
 import ErrorMessage from "../../../components/ErrorMessage";
@@ -118,6 +119,7 @@ function UploadCSV({ handleFirstStep }) {
 }
 
 export default function NewCertificate() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { register, handleSubmit, watch, errors } = useForm<{
     templateId: string;
   }>();
@@ -125,6 +127,7 @@ export default function NewCertificate() {
   const { query } = useRouter();
   const queryId = query.id;
   const onSubmit = (data) => {
+    setIsSubmitting(true);
     isoFetch("/api/certificates/create-batch", {
       method: "POST",
       headers: {
@@ -153,7 +156,8 @@ export default function NewCertificate() {
           console.log(err);
           toast.error(err.error);
         })
-      );
+      )
+      .finally(() => setIsSubmitting(false));
   };
   const [formStep, setFormStep] = useState(1);
   const [jsonData, setJsonData] = useState(null);
@@ -200,8 +204,20 @@ export default function NewCertificate() {
                   </option>
                 ))}
               </InputField>
-              <div className="text-right">
-                <Button color="success">Create</Button>
+              <div className="text-center">
+                <Button
+                  color="success"
+                  size="lg"
+                  className="px-5"
+                  disabled={isSubmitting}
+                >
+                  <span className="d-flex align-items-center">
+                    {isSubmitting && (
+                      <Spinner color="white" size="sm" className="mr-2" />
+                    )}
+                    Create
+                  </span>
+                </Button>
               </div>
             </Form>
           </Collapse>

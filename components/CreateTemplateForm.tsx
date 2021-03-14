@@ -11,6 +11,7 @@ import {
   Form,
   Input,
   Row,
+  Spinner,
 } from "reactstrap";
 import { mutate } from "swr";
 import InputField from "./InputField";
@@ -169,6 +170,7 @@ type Inputs = {
 };
 
 export default function CreateTemplateForm() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [cropAttr, setCropAttr] = useState<{ crop: Crop; fontSize: number }>({
     crop: null,
@@ -192,12 +194,13 @@ export default function CreateTemplateForm() {
       return false;
     }
 
+    setIsSubmitting(true);
     fetch("/api/templates", {
       method: "POST",
       headers: {
         "Content-type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ ...data, imageAttr: cropAttr }),
     })
       .then((res) => {
         if (!res.ok) throw res;
@@ -213,7 +216,8 @@ export default function CreateTemplateForm() {
           console.log(err);
           toast.error(err.error);
         })
-      );
+      )
+      .finally(() => setIsSubmitting(false));
   };
 
   return (
@@ -271,8 +275,18 @@ export default function CreateTemplateForm() {
           )}
         </Collapse>
         <div className="text-center">
-          <Button color="success" size="lg" className="px-5">
-            Create
+          <Button
+            color="success"
+            size="lg"
+            className="px-5"
+            disabled={isSubmitting}
+          >
+            <span className="d-flex align-items-center">
+              {isSubmitting && (
+                <Spinner color="white" size="sm" className="mr-2" />
+              )}
+              Create
+            </span>
           </Button>
         </div>
       </Form>

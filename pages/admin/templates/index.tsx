@@ -43,7 +43,22 @@ const TemplateCard = ({ template }) => (
 
 const Dashboard = () => {
   const { data, error } = useSWR("/api/templates", fetch);
-  const [createOpen, setCreateOpen] = useState(false);
+
+  let body = <></>;
+  if (!data && !error) body = <LoadingSpinner />;
+  else if (error) body = <ErrorMessage message="Failed to load Templates" />;
+  else if (!error && data) {
+    if (data.templates.length > 0)
+      body = (
+        <Row xs="1" md="2" lg="3" xl="4">
+          {data.templates.map((template) => (
+            <TemplateCard key={template.id} template={template} />
+          ))}
+        </Row>
+      );
+    else body = <ErrorMessage message="No Templates Found!" />;
+  }
+
   return (
     <>
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -59,15 +74,7 @@ const Dashboard = () => {
           </Button>
         </Link>
       </div>
-      {!data && !error && <LoadingSpinner />}
-      {error && <ErrorMessage message="Failed to load Templates" />}
-      {!error && data && (
-        <Row xs="1" md="2" lg="3" xl="4">
-          {data.templates.map((template) => (
-            <TemplateCard key={template.id} template={template} />
-          ))}
-        </Row>
-      )}
+      {body}
     </>
   );
 };

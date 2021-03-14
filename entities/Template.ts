@@ -3,8 +3,15 @@ import {
   Entity,
   Property,
   SerializedPrimaryKey,
+  JsonType,
 } from "@mikro-orm/core";
 import { ObjectID } from "mongodb";
+import { Crop } from "react-image-crop";
+
+interface ImageAttribute {
+  crop: Crop;
+  fontSize: number;
+}
 
 @Entity()
 export class Template {
@@ -20,11 +27,15 @@ export class Template {
   @Property()
   imageURL!: string;
 
+  @Property({ type: JsonType })
+  imageAttr!: ImageAttribute;
+
   @Property({ type: "date" })
   createdAt = new Date();
 
-  constructor(name: string, imageURL: string) {
+  constructor(name: string, imageURL: string, imageAttr: ImageAttribute) {
     this.name = name;
     this.imageURL = imageURL;
+    this.imageAttr = imageAttr;
   }
 }
