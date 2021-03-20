@@ -1,36 +1,25 @@
+# Batch Certify ✅
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) using [`mikro-orm`](https://mikro-orm.io/).
+Create and send certificates to thousands of candidates in clicks, not days. 🚀
 
+## Workflow
 
-## Tutorial
-You can read my medium guide [here](https://medium.com/@jonahallibone_20420/next-js-9-mikroorm-eb6f6e08e1a1?sk=ede639ec2b25d7691313e88cb0d4526f)
+### Create Certificate Templates
 
-## Getting Started
+Create a certificate template by providing a name, uploading a picture and selecting the region and font size for the candidate's name/details.
 
-Run `npm install`
+### Create Certificate Batch
 
-First, run the development server:
+- Upload CSV of candidate's details to generate certificates. **Required Fields**: Name, Email.
+- Select Template.
+- That's it certificates for individual candidates are created and their links are sent to the respective candidate's email.
 
-```bash
+## Techstack
 
-npm run dev
-
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-  
-
-### Configuration notes
-
-This repo contains a few extra packages to get decorators working with NextJS and babel. You can see them by inspecting `.babelrc` 
-
-There is also a configuration for the CLI tool. Notability, the `tsconfig.orm.json` has a target of `ES6` to run migrations. 
-
-### Folder and file structure
-The general structure and importing of files is up to the developer however, this was just the way I have set it up.
-
-
-
-### Issues
-Feel free to open any issues or PRs if you're having trouble or want to add to this repo.
+- TypeScript
+- Next.js - React SSG
+- MongoDB
+- MikroORM
+- Google Cloud Storage
+- React Table
+- Custom Bootstrap
