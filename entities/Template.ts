@@ -10,6 +10,7 @@ import { Crop } from "react-image-crop";
 
 interface ImageAttribute {
   crop: Crop;
+  scale: { x: number; y: number };
   fontSize: number;
 }
 

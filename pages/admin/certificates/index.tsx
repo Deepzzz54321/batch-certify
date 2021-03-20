@@ -35,7 +35,11 @@ const CertificatesTable = ({ data }) => {
         disableSortBy: true,
         disableGlobalFilter: true,
         Cell: ({ cell: {}, row: { original } }) => (
-          <Link href={`/view/${original.id}`}>View</Link>
+          <Link href={`/view/${original.id}`}>
+            <a href={`/view/${original.id}`} target="_blank">
+              View
+            </a>
+          </Link>
         ),
       },
     ],

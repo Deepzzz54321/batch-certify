@@ -10,7 +10,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   } = req;
   switch (req.method) {
     case "GET":
-      const certificate = await orm.em.findOne(Certificate, { id });
+      const certificate = await orm.em.findOne(Certificate, { id }, [
+        "template",
+      ]);
       res.status(200).json({ certificate });
       break;
     default:

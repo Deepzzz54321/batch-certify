@@ -5,8 +5,10 @@ import "react-toastify/dist/ReactToastify.css";
 import "react-image-crop/dist/ReactCrop.css";
 import Admin from "../components/Layouts/Admin";
 import { ToastContainer } from "react-toastify";
+import { useRouter } from "next/router";
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const router = useRouter();
   return (
     <>
       <Head>
@@ -20,10 +22,14 @@ function MyApp({ Component, pageProps }: AppProps) {
           rel="stylesheet"
         />
       </Head>
-      <Admin>
+      {router.pathname.startsWith("/admin") ? (
+        <Admin>
+          <Component {...pageProps} />
+        </Admin>
+      ) : (
         <Component {...pageProps} />
-        <ToastContainer />
-      </Admin>
+      )}
+      <ToastContainer />
     </>
   );
 }

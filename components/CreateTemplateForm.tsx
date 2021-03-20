@@ -22,6 +22,7 @@ const ImageCrop = ({ imageURL, handleFinalise }) => {
   const [font, setFont] = useState(10);
   const imgRef = useRef<HTMLImageElement>(null);
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [scale, setScale] = useState({ x: null, y: null });
   const [crop, setCrop] = useState<Crop>({ unit: "%" });
   const [completedCrop, setCompletedCrop] = useState<Crop>(null);
   const fontSize = font * 4;
@@ -42,7 +43,7 @@ const ImageCrop = ({ imageURL, handleFinalise }) => {
       return false;
     }
 
-    handleFinalise({ crop: completedCrop, fontSize: fontSize });
+    handleFinalise({ crop: completedCrop, scale, fontSize: fontSize });
   };
 
   useEffect(() => {
@@ -56,11 +57,12 @@ const ImageCrop = ({ imageURL, handleFinalise }) => {
 
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
+    setScale({ x: scaleX, y: scaleY });
     const ctx = canvas.getContext("2d");
     const pixelRatio = window.devicePixelRatio;
 
-    canvas.width = image.naturalWidth;
-    canvas.height = image.naturalHeight;
+    canvas.width = 1.25 * image.naturalWidth;
+    canvas.height = 1.25 * image.naturalHeight;
 
     ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
     ctx.imageSmoothingQuality = "high";
@@ -79,25 +81,26 @@ const ImageCrop = ({ imageURL, handleFinalise }) => {
 
   return (
     <>
-      <div className="d-flex">
-        <Card className="p-3">
-          <h2>Drag a region for the text</h2>
-          <ReactCrop
-            src={imageURL}
-            onImageLoaded={onLoad}
-            crop={crop}
-            onChange={(c) => setCrop(c)}
-            onComplete={(c) => setCompletedCrop(c)}
-          />
-        </Card>
-        <Card className="mx-3 p-3">
-          <h2>Preview here:</h2>
-          <canvas
-            ref={previewCanvasRef}
-            style={{ width: "100%", height: "auto" }}
-          />
-        </Card>
-      </div>
+      <Row>
+        <Col md="6" className="pr-0 pr-md-3">
+          <Card className="px-3 py-2">
+            <h2>Drag a region for the text</h2>
+            <ReactCrop
+              src={imageURL}
+              onImageLoaded={onLoad}
+              crop={crop}
+              onChange={(c) => setCrop(c)}
+              onComplete={(c) => setCompletedCrop(c)}
+            />
+          </Card>
+        </Col>
+        <Col className="pl-0">
+          <Card className="px-3 py-2">
+            <h2>Preview here:</h2>
+            <canvas ref={previewCanvasRef} style={{ width: "100%" }} />
+          </Card>
+        </Col>
+      </Row>
       <div className="d-flex mt-2">
         <div className="d-flex w-100 align-items-center justify-content-around">
           Font Size:
