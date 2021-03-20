@@ -1,4 +1,3 @@
-import Link from "next/link";
 import React from "react";
 import {
   Container,
@@ -20,11 +19,9 @@ const AdminNavbar = (props) => {
         id="navbar-main"
       >
         <Container fluid>
-          <Link href="/">
-            <a className="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block">
-              {props.brandText}
-            </a>
-          </Link>
+          <span className="h4 mb-0 text-white text-uppercase d-none d-md-inline-block">
+            {props.brandText}
+          </span>
           <Nav className="align-items-center d-none d-md-flex" navbar>
             <UncontrolledDropdown nav>
               <DropdownToggle className="pr-0" nav>

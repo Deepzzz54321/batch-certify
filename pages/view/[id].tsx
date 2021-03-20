@@ -2,10 +2,12 @@ import React, { useEffect, useRef } from "react";
 import { GetStaticProps, GetStaticPaths } from "next";
 import { useRouter } from "next/router";
 import { Certificate } from "../../entities/Certificate";
-import { Card } from "reactstrap";
+import { Button, Card, UncontrolledTooltip } from "reactstrap";
 import AuthNavbar from "../../components/Navbars/AuthNavbar";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import ErrorMessage from "../../components/ErrorMessage";
+import Icon from "../../components/Icon";
+import { toast } from "react-toastify";
 
 const ViewCertificate: React.FC<{ certificate: Certificate }> = ({
   certificate,
@@ -41,10 +43,48 @@ const ViewCertificate: React.FC<{ certificate: Certificate }> = ({
     }
   }, []);
 
+  const handleCopy = () => {
+    const link =
+      (process.env.VERCEL_URL || "http://localhost:3000") + router.asPath;
+
+    const input = document.createElement("input");
+    document.body.appendChild(input);
+    input.value = link;
+    input.select();
+    document.execCommand("copy");
+    document.body.removeChild(input);
+    toast("Shareable Link copied to clipboard!");
+  };
+
+  const ExportActions = () => {
+    return (
+      <>
+        <Button id="downloadButton" color="primary" className="p-1">
+          <Icon name="download-line" style={{ fontSize: "1.3rem" }} />
+        </Button>
+        <UncontrolledTooltip placement="top" target="downloadButton">
+          <span className="d-md-none">Long hold </span>{" "}
+          <span className="d-none d-md-inline">Right click </span> the image and
+          click 'Save Image as'.
+        </UncontrolledTooltip>
+        <Button color="primary" className="p-1" onClick={handleCopy}>
+          <Icon name="share-line" style={{ fontSize: "1.3rem" }} />
+        </Button>
+      </>
+    );
+  };
+
   const content = router.isFallback ? (
     <LoadingSpinner message="Loading Certificate" />
   ) : certificate ? (
     <>
+      <div
+        style={{ position: "absolute", top: "0", right: "0" }}
+        className="m-2 d-none d-md-block"
+      >
+        <ExportActions />
+      </div>
+
       <canvas ref={canvasRef} style={{ width: "100%" }} />
       <img
         src={certificate.template.imageURL}
@@ -60,11 +100,14 @@ const ViewCertificate: React.FC<{ certificate: Certificate }> = ({
     <>
       <AuthNavbar />
       <div
-        className="d-flex align-items-center p-4"
+        className="d-md-flex align-items-center p-4"
         style={{ width: "100%", minHeight: "90vh" }}
       >
+        <div className="d-md-none text-center mb-3">
+          <ExportActions />
+        </div>
         <Card
-          className="shadow-lg rounded-lg"
+          className="shadow-lg rounded-lg position-relative"
           style={{ height: "100%", width: "100%" }}
         >
           {content}
@@ -77,7 +120,7 @@ const ViewCertificate: React.FC<{ certificate: Certificate }> = ({
 export default ViewCertificate;
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const baseURL = process.env.API_URL || "http://localhost:3000";
+  const baseURL = process.env.VERCEL_URL || "http://localhost:3000";
   let paths = [];
   try {
     const res = await fetch(`${baseURL}/api/certificates`);
@@ -100,7 +143,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { id } = params;
-  const baseURL = process.env.API_URL || "http://localhost:3000";
+  const baseURL = process.env.VERCEL_URL || "http://localhost:3000";
   let certificate = null;
   try {
     const res = await fetch(`${baseURL}/api/certificates/${id}`);
