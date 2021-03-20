@@ -8,6 +8,7 @@ import LoadingSpinner from "../../components/LoadingSpinner";
 import ErrorMessage from "../../components/ErrorMessage";
 import Icon from "../../components/Icon";
 import { toast } from "react-toastify";
+import startOrm from "../../utils/initialize-database";
 
 const ViewCertificate: React.FC<{ certificate: Certificate }> = ({
   certificate,
@@ -120,14 +121,13 @@ const ViewCertificate: React.FC<{ certificate: Certificate }> = ({
 export default ViewCertificate;
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const baseURL = process.env.VERCEL_URL || "http://localhost:3000";
   let paths = [];
   try {
-    const res = await fetch(`${baseURL}/api/certificates`);
-    const data = await res.json();
+    const orm = await startOrm();
+    const certificates = await orm.em.find(Certificate, {}, ["template"]);
     paths =
-      (data.certificates &&
-        data.certificates.map((cert: Certificate) => ({
+      (certificates &&
+        certificates.map((cert) => ({
           params: { id: cert.id },
         }))) ||
       [];
@@ -143,12 +143,11 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { id } = params;
-  const baseURL = process.env.VERCEL_URL || "http://localhost:3000";
   let certificate = null;
   try {
-    const res = await fetch(`${baseURL}/api/certificates/${id}`);
-    const data = await res.json();
-    certificate = data.certificate;
+    const orm = await startOrm();
+    certificate = await orm.em.findOne(Certificate, { id }, ["template"]);
+    certificate = JSON.parse(JSON.stringify(certificate));
   } catch (error) {
     console.log(error);
   }
